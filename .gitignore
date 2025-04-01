@@ -1,0 +1,5 @@
+# Ignore model data and other generated files
+tei_data/
+tgi_data/
+index_storage/
+__pycache__/
