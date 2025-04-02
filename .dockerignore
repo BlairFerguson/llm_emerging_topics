@@ -1,0 +1,18 @@
+# Ignore cache and model directories that include symlinks or huge files
+__pycache__/
+*.pyc
+*.pkl
+*.pt
+*.bin
+*.safetensors
+
+tei_data/
+tgi_data/
+models/
+snapshots/
+*.gguf
+
+# Ignore any local logs or result files
+*.jsonl
+*.csv
+rag_evaluation_results.*

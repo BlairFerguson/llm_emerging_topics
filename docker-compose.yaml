@@ -1,31 +1,42 @@
-version: "3.8"
+version: "3.9"
 
 services:
-  tei:
-    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.6
-    # Model can be overridden using the TEI_MODEL environment variable
-    command: --model-id ${TEI_MODEL:-sentence-transformers/all-MiniLM-L6-v2}
+  rag:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rag-api
     ports:
-      - "8080:80"
+      - "8000:8000"
+    environment:
+      EMBEDDING_ENDPOINT: http://tei:8080
+      GENERATION_ENDPOINT: http://tgi:8080/generate
+    volumes:
+      - ./tei_data:/tei_data
+      - ./tgi_data:/tgi_data
+    depends_on:
+      - tei
+      - tgi
+
+  tei:
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.1
+    container_name: tei
+    environment:
+      MODEL_ID: sentence-transformers/all-MiniLM-L6-v2
+      PORT: 8080
+    ports:
+      - "8081:8080"
     volumes:
       - ./tei_data:/data
 
   tgi:
-    image: ghcr.io/huggingface/text-generation-inference:3.1.0
-    # Model can be overridden using the TGI_MODEL environment variable
-    command: --model-id ${TGI_MODEL:-Qwen/Qwen2.5-0.5B-Instruct} --num-shard 1 --disable-custom-kernels
+    image: ghcr.io/huggingface/text-generation-inference:1.3
+    container_name: tgi
     ports:
-      - "8081:80"
+      - "8082:8080"
     volumes:
       - ./tgi_data:/data
-
-  rag:
-    build: .
-    ports:
-      - "8000:8000"
-    depends_on:
-      - tei
-      - tgi
-    volumes:
-      - ./index_storage:/app/index_storage
-      - ./data:/app/data
+    environment:
+      MODEL_ID: Qwen/Qwen2.5-0.5B-Instruct
+      PORT: 8080
+    shm_size: "1g"

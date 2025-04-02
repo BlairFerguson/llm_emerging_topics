@@ -1,0 +1,9 @@
+@"
+tei_data/
+tgi_data/
+__pycache__/
+index_storage/
+*.csv
+*.jsonl
+*.parquet
+"@ | Out-File -Encoding utf8 .gitignore
